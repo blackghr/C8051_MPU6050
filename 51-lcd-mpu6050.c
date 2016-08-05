@@ -1,17 +1,12 @@
 //****************************************
-// Update to MPU6050 by shinetop
 // MCU: STC89C52
 // 2012.3.1
-// ¹¦ÄÜ: ÏÔÊ¾¼ÓËÙ¶È¼ÆºÍÍÓÂİÒÇµÄ10Î»Ô­Ê¼Êı¾İ
+// åŠŸèƒ½: æ˜¾ç¤ºåŠ é€Ÿåº¦è®¡å’Œé™€èºä»ªçš„10ä½åŸå§‹æ•°æ®
 //****************************************
-// GY-52 MPU3050 IIC²âÊÔ³ÌĞò
-// Ê¹ÓÃµ¥Æ¬»úSTC89C51 
-// ¾§Õñ£º11.0592M
-// ÏÔÊ¾£ºLCD1602
-// ±àÒë»·¾³ Keil uVision2
-// ²Î¿¼ºê¾§ÍøÕ¾24c04Í¨ĞÅ³ÌĞò
-// Ê±¼ä£º2011Äê9ÔÂ1ÈÕ
-// QQ£º531389319
+// GY-52 MPU3050 IICæµ‹è¯•ç¨‹åº
+// ä½¿ç”¨å•ç‰‡æœºSTC89C51 
+// æ™¶æŒ¯ï¼š11.0592M
+// æ˜¾ç¤ºï¼šLCD1602
 //****************************************
 #include <REG52.H>	
 #include <math.h>    //Keil library  
@@ -21,21 +16,21 @@ typedef unsigned char  uchar;
 typedef unsigned short ushort;
 typedef unsigned int   uint;
 //****************************************
-// ¶¨Òå51µ¥Æ¬»ú¶Ë¿Ú
+// å®šä¹‰51å•ç‰‡æœºç«¯å£
 //****************************************
-#define DataPort P0		//LCD1602Êı¾İ¶Ë¿Ú
-sbit    SCL=P1^0;			//IICÊ±ÖÓÒı½Å¶¨Òå
-sbit    SDA=P1^1;			//IICÊı¾İÒı½Å¶¨Òå
-sbit    LCM_RS=P2^5;		//LCD1602ÃüÁî¶Ë¿Ú		
-sbit    LCM_RW=P2^6;		//LCD1602ÃüÁî¶Ë¿Ú		
-sbit    LCM_EN=P2^7;		//LCD1602ÃüÁî¶Ë¿Ú 
+#define DataPort P0		//LCD1602æ•°æ®ç«¯å£
+sbit    SCL=P1^0;			//IICæ—¶é’Ÿå¼•è„šå®šä¹‰
+sbit    SDA=P1^1;			//IICæ•°æ®å¼•è„šå®šä¹‰
+sbit    LCM_RS=P2^5;		//LCD1602å‘½ä»¤ç«¯å£		
+sbit    LCM_RW=P2^6;		//LCD1602å‘½ä»¤ç«¯å£		
+sbit    LCM_EN=P2^7;		//LCD1602å‘½ä»¤ç«¯å£ 
 //****************************************
-// ¶¨ÒåMPU6050ÄÚ²¿µØÖ·
+// å®šä¹‰MPU6050å†…éƒ¨åœ°å€
 //****************************************
-#define	SMPLRT_DIV		0x19	//ÍÓÂİÒÇ²ÉÑùÂÊ£¬µäĞÍÖµ£º0x07(125Hz)
-#define	CONFIG			0x1A	//µÍÍ¨ÂË²¨ÆµÂÊ£¬µäĞÍÖµ£º0x06(5Hz)
-#define	GYRO_CONFIG		0x1B	//ÍÓÂİÒÇ×Ô¼ì¼°²âÁ¿·¶Î§£¬µäĞÍÖµ£º0x18(²»×Ô¼ì£¬2000deg/s)
-#define	ACCEL_CONFIG	0x1C	//¼ÓËÙ¼Æ×Ô¼ì¡¢²âÁ¿·¶Î§¼°¸ßÍ¨ÂË²¨ÆµÂÊ£¬µäĞÍÖµ£º0x01(²»×Ô¼ì£¬2G£¬5Hz)
+#define	SMPLRT_DIV		0x19	//é™€èºä»ªé‡‡æ ·ç‡ï¼Œå…¸å‹å€¼ï¼š0x07(125Hz)
+#define	CONFIG			0x1A	//ä½é€šæ»¤æ³¢é¢‘ç‡ï¼Œå…¸å‹å€¼ï¼š0x06(5Hz)
+#define	GYRO_CONFIG		0x1B	//é™€èºä»ªè‡ªæ£€åŠæµ‹é‡èŒƒå›´ï¼Œå…¸å‹å€¼ï¼š0x18(ä¸è‡ªæ£€ï¼Œ2000deg/s)
+#define	ACCEL_CONFIG	0x1C	//åŠ é€Ÿè®¡è‡ªæ£€ã€æµ‹é‡èŒƒå›´åŠé«˜é€šæ»¤æ³¢é¢‘ç‡ï¼Œå…¸å‹å€¼ï¼š0x01(ä¸è‡ªæ£€ï¼Œ2Gï¼Œ5Hz)
 #define	ACCEL_XOUT_H	0x3B
 #define	ACCEL_XOUT_L	0x3C
 #define	ACCEL_YOUT_H	0x3D
@@ -50,28 +45,28 @@ sbit    LCM_EN=P2^7;		//LCD1602ÃüÁî¶Ë¿Ú
 #define	GYRO_YOUT_L		0x46
 #define	GYRO_ZOUT_H		0x47
 #define	GYRO_ZOUT_L		0x48
-#define	PWR_MGMT_1		0x6B	//µçÔ´¹ÜÀí£¬µäĞÍÖµ£º0x00(Õı³£ÆôÓÃ)
-#define	WHO_AM_I			0x75	//IICµØÖ·¼Ä´æÆ÷(Ä¬ÈÏÊıÖµ0x68£¬Ö»¶Á)
-#define	SlaveAddress	0xD0	//IICĞ´ÈëÊ±µÄµØÖ·×Ö½ÚÊı¾İ£¬+1Îª¶ÁÈ¡
+#define	PWR_MGMT_1		0x6B	//ç”µæºç®¡ç†ï¼Œå…¸å‹å€¼ï¼š0x00(æ­£å¸¸å¯ç”¨)
+#define	WHO_AM_I			0x75	//IICåœ°å€å¯„å­˜å™¨(é»˜è®¤æ•°å€¼0x68ï¼Œåªè¯»)
+#define	SlaveAddress	0xD0	//IICå†™å…¥æ—¶çš„åœ°å€å­—èŠ‚æ•°æ®ï¼Œ+1ä¸ºè¯»å–
 //****************************************
-//¶¨ÒåÀàĞÍ¼°±äÁ¿
+//å®šä¹‰ç±»å‹åŠå˜é‡
 //****************************************
-uchar dis[4];							//ÏÔÊ¾Êı×Ö(-511ÖÁ512)µÄ×Ö·ûÊı×é
-int	dis_data;						//±äÁ¿
-//int	Temperature,Temp_h,Temp_l;	//ÎÂ¶È¼°¸ßµÍÎ»Êı¾İ
+uchar dis[4];							//æ˜¾ç¤ºæ•°å­—(-511è‡³512)çš„å­—ç¬¦æ•°ç»„
+int	dis_data;						//å˜é‡
+//int	Temperature,Temp_h,Temp_l;	//æ¸©åº¦åŠé«˜ä½ä½æ•°æ®
 //****************************************
-//º¯ÊıÉùÃ÷
+//å‡½æ•°å£°æ˜
 //****************************************
-void  delay(unsigned int k);										//ÑÓÊ±
-//LCDÏà¹Øº¯Êı
-void  InitLcd();														//³õÊ¼»¯lcd1602
+void  delay(unsigned int k);										//å»¶æ—¶
+//LCDç›¸å…³å‡½æ•°
+void  InitLcd();														//åˆå§‹åŒ–lcd1602
 void  lcd_printf(uchar *s,int temp_data);
-void  WriteDataLCM(uchar dataW);									//LCDÊı¾İ
-void  WriteCommandLCM(uchar CMD,uchar Attribc);				//LCDÖ¸Áî
-void  DisplayOneChar(uchar X,uchar Y,uchar DData);			//ÏÔÊ¾Ò»¸ö×Ö·û
-void  DisplayListChar(uchar X,uchar Y,uchar *DData,L);	//ÏÔÊ¾×Ö·û´®
-//MPU6050²Ù×÷º¯Êı
-void  InitMPU6050();													//³õÊ¼»¯MPU6050
+void  WriteDataLCM(uchar dataW);									//LCDæ•°æ®
+void  WriteCommandLCM(uchar CMD,uchar Attribc);				//LCDæŒ‡ä»¤
+void  DisplayOneChar(uchar X,uchar Y,uchar DData);			//æ˜¾ç¤ºä¸€ä¸ªå­—ç¬¦
+void  DisplayListChar(uchar X,uchar Y,uchar *DData,L);	//æ˜¾ç¤ºå­—ç¬¦ä¸²
+//MPU6050æ“ä½œå‡½æ•°
+void  InitMPU6050();													//åˆå§‹åŒ–MPU6050
 void  Delay5us();
 void  I2C_Start();
 void  I2C_Stop();
@@ -84,10 +79,10 @@ void  I2C_WritePage();
 void  display_ACCEL_x();
 void  display_ACCEL_y();
 void  display_ACCEL_z();
-uchar Single_ReadI2C(uchar REG_Address);						//¶ÁÈ¡I2CÊı¾İ
-void  Single_WriteI2C(uchar REG_Address,uchar REG_data);	//ÏòI2CĞ´ÈëÊı¾İ
+uchar Single_ReadI2C(uchar REG_Address);						//è¯»å–I2Cæ•°æ®
+void  Single_WriteI2C(uchar REG_Address,uchar REG_data);	//å‘I2Cå†™å…¥æ•°æ®
 //****************************************
-//ÕûÊı×ª×Ö·û´®
+//æ•´æ•°è½¬å­—ç¬¦ä¸²
 //****************************************
 void lcd_printf(uchar *s,int temp_data)
 {
@@ -98,13 +93,13 @@ void lcd_printf(uchar *s,int temp_data)
 	}
 	else *s=' ';
 	*++s =temp_data/100+0x30;
-	temp_data=temp_data%100;     //È¡ÓàÔËËã
+	temp_data=temp_data%100;     //å–ä½™è¿ç®—
 	*++s =temp_data/10+0x30;
-	temp_data=temp_data%10;      //È¡ÓàÔËËã
+	temp_data=temp_data%10;      //å–ä½™è¿ç®—
 	*++s =temp_data+0x30; 	
 }
 //****************************************
-//ÑÓÊ±
+//å»¶æ—¶
 //****************************************
 void delay(unsigned int k)	
 {						
@@ -115,7 +110,7 @@ void delay(unsigned int k)
 	}						
 }
 //****************************************
-//LCD1602³õÊ¼»¯
+//LCD1602åˆå§‹åŒ–
 //****************************************
 void InitLcd()				
 {			
@@ -128,7 +123,7 @@ void InitLcd()
 	DisplayOneChar(0,1,'G');
 }			
 //****************************************
-//LCD1602Ğ´ÔÊĞí
+//LCD1602å†™å…è®¸
 //****************************************
 void WaitForEnable(void)	
 {					
@@ -139,7 +134,7 @@ void WaitForEnable(void)
 	LCM_EN=0;				
 }					
 //****************************************
-//LCD1602Ğ´ÈëÃüÁî
+//LCD1602å†™å…¥å‘½ä»¤
 //****************************************
 void WriteCommandLCM(uchar CMD,uchar Attribc)
 {					
@@ -149,7 +144,7 @@ void WriteCommandLCM(uchar CMD,uchar Attribc)
 	LCM_EN=1;_nop_();_nop_();LCM_EN=0;
 }					
 //****************************************
-//LCD1602Ğ´ÈëÊı¾İ
+//LCD1602å†™å…¥æ•°æ®
 //****************************************
 void WriteDataLCM(uchar dataW)
 {					
@@ -159,7 +154,7 @@ void WriteDataLCM(uchar dataW)
 	LCM_EN=1;_nop_();_nop_();LCM_EN=0;
 }		
 //****************************************
-//LCD1602Ğ´ÈëÒ»¸ö×Ö·û
+//LCD1602å†™å…¥ä¸€ä¸ªå­—ç¬¦
 //****************************************
 void DisplayOneChar(uchar X,uchar Y,uchar DData)
 {						
@@ -171,7 +166,7 @@ void DisplayOneChar(uchar X,uchar Y,uchar DData)
 	WriteDataLCM(DData);		
 }						
 //****************************************
-//LCD1602ÏÔÊ¾×Ö·û´®
+//LCD1602æ˜¾ç¤ºå­—ç¬¦ä¸²
 //****************************************
 void DisplayListChar(uchar X,uchar Y,uchar *DData,L)
 {
@@ -186,9 +181,9 @@ void DisplayListChar(uchar X,uchar Y,uchar *DData,L)
 	}    
 }
 //**************************************
-//ÑÓÊ±5Î¢Ãë(STC90C52RC@12M)
-//²»Í¬µÄ¹¤×÷»·¾³,ĞèÒªµ÷Õû´Ëº¯Êı
-//µ±¸ÄÓÃ1TµÄMCUÊ±,Çëµ÷Õû´ËÑÓÊ±º¯Êı
+//å»¶æ—¶5å¾®ç§’(STC90C52RC@12M)
+//ä¸åŒçš„å·¥ä½œç¯å¢ƒ,éœ€è¦è°ƒæ•´æ­¤å‡½æ•°
+//å½“æ”¹ç”¨1Tçš„MCUæ—¶,è¯·è°ƒæ•´æ­¤å»¶æ—¶å‡½æ•°
 //**************************************
 void Delay5us()
 {
@@ -200,174 +195,174 @@ void Delay5us()
 	_nop_();_nop_();_nop_();_nop_();
 }
 //**************************************
-//I2CÆğÊ¼ĞÅºÅ
+//I2Cèµ·å§‹ä¿¡å·
 //**************************************
 void I2C_Start()
 {
-    SDA = 1;                    //À­¸ßÊı¾İÏß
-    SCL = 1;                    //À­¸ßÊ±ÖÓÏß
-    Delay5us();                 //ÑÓÊ±
-    SDA = 0;                    //²úÉúÏÂ½µÑØ
-    Delay5us();                 //ÑÓÊ±
-    SCL = 0;                    //À­µÍÊ±ÖÓÏß
+    SDA = 1;                    //æ‹‰é«˜æ•°æ®çº¿
+    SCL = 1;                    //æ‹‰é«˜æ—¶é’Ÿçº¿
+    Delay5us();                 //å»¶æ—¶
+    SDA = 0;                    //äº§ç”Ÿä¸‹é™æ²¿
+    Delay5us();                 //å»¶æ—¶
+    SCL = 0;                    //æ‹‰ä½æ—¶é’Ÿçº¿
 }
 //**************************************
-//I2CÍ£Ö¹ĞÅºÅ
+//I2Cåœæ­¢ä¿¡å·
 //**************************************
 void I2C_Stop()
 {
-    SDA = 0;                    //À­µÍÊı¾İÏß
-    SCL = 1;                    //À­¸ßÊ±ÖÓÏß
-    Delay5us();                 //ÑÓÊ±
-    SDA = 1;                    //²úÉúÉÏÉıÑØ
-    Delay5us();                 //ÑÓÊ±
+    SDA = 0;                    //æ‹‰ä½æ•°æ®çº¿
+    SCL = 1;                    //æ‹‰é«˜æ—¶é’Ÿçº¿
+    Delay5us();                 //å»¶æ—¶
+    SDA = 1;                    //äº§ç”Ÿä¸Šå‡æ²¿
+    Delay5us();                 //å»¶æ—¶
 }
 //**************************************
-//I2C·¢ËÍÓ¦´ğĞÅºÅ
-//Èë¿Ú²ÎÊı:ack (0:ACK 1:NAK)
+//I2Cå‘é€åº”ç­”ä¿¡å·
+//å…¥å£å‚æ•°:ack (0:ACK 1:NAK)
 //**************************************
 void I2C_SendACK(bit ack)
 {
-    SDA = ack;                  //Ğ´Ó¦´ğĞÅºÅ
-    SCL = 1;                    //À­¸ßÊ±ÖÓÏß
-    Delay5us();                 //ÑÓÊ±
-    SCL = 0;                    //À­µÍÊ±ÖÓÏß
-    Delay5us();                 //ÑÓÊ±
+    SDA = ack;                  //å†™åº”ç­”ä¿¡å·
+    SCL = 1;                    //æ‹‰é«˜æ—¶é’Ÿçº¿
+    Delay5us();                 //å»¶æ—¶
+    SCL = 0;                    //æ‹‰ä½æ—¶é’Ÿçº¿
+    Delay5us();                 //å»¶æ—¶
 }
 //**************************************
-//I2C½ÓÊÕÓ¦´ğĞÅºÅ
+//I2Cæ¥æ”¶åº”ç­”ä¿¡å·
 //**************************************
 bit I2C_RecvACK()
 {
-    SCL = 1;                    //À­¸ßÊ±ÖÓÏß
-    Delay5us();                 //ÑÓÊ±
-    CY = SDA;                   //¶ÁÓ¦´ğĞÅºÅ
-    SCL = 0;                    //À­µÍÊ±ÖÓÏß
-    Delay5us();                 //ÑÓÊ±
+    SCL = 1;                    //æ‹‰é«˜æ—¶é’Ÿçº¿
+    Delay5us();                 //å»¶æ—¶
+    CY = SDA;                   //è¯»åº”ç­”ä¿¡å·
+    SCL = 0;                    //æ‹‰ä½æ—¶é’Ÿçº¿
+    Delay5us();                 //å»¶æ—¶
     return CY;
 }
 //**************************************
-//ÏòI2C×ÜÏß·¢ËÍÒ»¸ö×Ö½ÚÊı¾İ
+//å‘I2Cæ€»çº¿å‘é€ä¸€ä¸ªå­—èŠ‚æ•°æ®
 //**************************************
 void I2C_SendByte(uchar dat)
 {
     uchar i;
-    for (i=0; i<8; i++)         //8Î»¼ÆÊıÆ÷
+    for (i=0; i<8; i++)         //8ä½è®¡æ•°å™¨
     {
-        dat <<= 1;              //ÒÆ³öÊı¾İµÄ×î¸ßÎ»
-        SDA = CY;               //ËÍÊı¾İ¿Ú
-        SCL = 1;                //À­¸ßÊ±ÖÓÏß
-        Delay5us();             //ÑÓÊ±
-        SCL = 0;                //À­µÍÊ±ÖÓÏß
-        Delay5us();             //ÑÓÊ±
+        dat <<= 1;              //ç§»å‡ºæ•°æ®çš„æœ€é«˜ä½
+        SDA = CY;               //é€æ•°æ®å£
+        SCL = 1;                //æ‹‰é«˜æ—¶é’Ÿçº¿
+        Delay5us();             //å»¶æ—¶
+        SCL = 0;                //æ‹‰ä½æ—¶é’Ÿçº¿
+        Delay5us();             //å»¶æ—¶
     }
     I2C_RecvACK();
 }
 //**************************************
-//´ÓI2C×ÜÏß½ÓÊÕÒ»¸ö×Ö½ÚÊı¾İ
+//ä»I2Cæ€»çº¿æ¥æ”¶ä¸€ä¸ªå­—èŠ‚æ•°æ®
 //**************************************
 uchar I2C_RecvByte()
 {
     uchar i;
     uchar dat = 0;
-    SDA = 1;                    //Ê¹ÄÜÄÚ²¿ÉÏÀ­,×¼±¸¶ÁÈ¡Êı¾İ,
-    for (i=0; i<8; i++)         //8Î»¼ÆÊıÆ÷
+    SDA = 1;                    //ä½¿èƒ½å†…éƒ¨ä¸Šæ‹‰,å‡†å¤‡è¯»å–æ•°æ®,
+    for (i=0; i<8; i++)         //8ä½è®¡æ•°å™¨
     {
         dat <<= 1;
-        SCL = 1;                //À­¸ßÊ±ÖÓÏß
-        Delay5us();             //ÑÓÊ±
-        dat |= SDA;             //¶ÁÊı¾İ               
-        SCL = 0;                //À­µÍÊ±ÖÓÏß
-        Delay5us();             //ÑÓÊ±
+        SCL = 1;                //æ‹‰é«˜æ—¶é’Ÿçº¿
+        Delay5us();             //å»¶æ—¶
+        dat |= SDA;             //è¯»æ•°æ®               
+        SCL = 0;                //æ‹‰ä½æ—¶é’Ÿçº¿
+        Delay5us();             //å»¶æ—¶
     }
     return dat;
 }
 //**************************************
-//ÏòI2CÉè±¸Ğ´ÈëÒ»¸ö×Ö½ÚÊı¾İ
+//å‘I2Cè®¾å¤‡å†™å…¥ä¸€ä¸ªå­—èŠ‚æ•°æ®
 //**************************************
 void Single_WriteI2C(uchar REG_Address,uchar REG_data)
 {
-    I2C_Start();                  //ÆğÊ¼ĞÅºÅ
-    I2C_SendByte(SlaveAddress);   //·¢ËÍÉè±¸µØÖ·+Ğ´ĞÅºÅ
-    I2C_SendByte(REG_Address);    //ÄÚ²¿¼Ä´æÆ÷µØÖ·£¬
-    I2C_SendByte(REG_data);       //ÄÚ²¿¼Ä´æÆ÷Êı¾İ£¬
-    I2C_Stop();                   //·¢ËÍÍ£Ö¹ĞÅºÅ
+    I2C_Start();                  //èµ·å§‹ä¿¡å·
+    I2C_SendByte(SlaveAddress);   //å‘é€è®¾å¤‡åœ°å€+å†™ä¿¡å·
+    I2C_SendByte(REG_Address);    //å†…éƒ¨å¯„å­˜å™¨åœ°å€ï¼Œ
+    I2C_SendByte(REG_data);       //å†…éƒ¨å¯„å­˜å™¨æ•°æ®ï¼Œ
+    I2C_Stop();                   //å‘é€åœæ­¢ä¿¡å·
 }
 //**************************************
-//´ÓI2CÉè±¸¶ÁÈ¡Ò»¸ö×Ö½ÚÊı¾İ
+//ä»I2Cè®¾å¤‡è¯»å–ä¸€ä¸ªå­—èŠ‚æ•°æ®
 //**************************************
 uchar Single_ReadI2C(uchar REG_Address)
 {
 	uchar REG_data;
-	I2C_Start();                   //ÆğÊ¼ĞÅºÅ
-	I2C_SendByte(SlaveAddress);    //·¢ËÍÉè±¸µØÖ·+Ğ´ĞÅºÅ
-	I2C_SendByte(REG_Address);     //·¢ËÍ´æ´¢µ¥ÔªµØÖ·£¬´Ó0¿ªÊ¼	
-	I2C_Start();                   //ÆğÊ¼ĞÅºÅ
-	I2C_SendByte(SlaveAddress+1);  //·¢ËÍÉè±¸µØÖ·+¶ÁĞÅºÅ
-	REG_data=I2C_RecvByte();       //¶Á³ö¼Ä´æÆ÷Êı¾İ
-	I2C_SendACK(1);                //½ÓÊÕÓ¦´ğĞÅºÅ
-	I2C_Stop();                    //Í£Ö¹ĞÅºÅ
+	I2C_Start();                   //èµ·å§‹ä¿¡å·
+	I2C_SendByte(SlaveAddress);    //å‘é€è®¾å¤‡åœ°å€+å†™ä¿¡å·
+	I2C_SendByte(REG_Address);     //å‘é€å­˜å‚¨å•å…ƒåœ°å€ï¼Œä»0å¼€å§‹	
+	I2C_Start();                   //èµ·å§‹ä¿¡å·
+	I2C_SendByte(SlaveAddress+1);  //å‘é€è®¾å¤‡åœ°å€+è¯»ä¿¡å·
+	REG_data=I2C_RecvByte();       //è¯»å‡ºå¯„å­˜å™¨æ•°æ®
+	I2C_SendACK(1);                //æ¥æ”¶åº”ç­”ä¿¡å·
+	I2C_Stop();                    //åœæ­¢ä¿¡å·
 	return REG_data;
 }
 //**************************************
-//³õÊ¼»¯MPU6050
+//åˆå§‹åŒ–MPU6050
 //**************************************
 void InitMPU6050()
 {
-	Single_WriteI2C(PWR_MGMT_1, 0x00);	//½â³ıĞİÃß×´Ì¬
+	Single_WriteI2C(PWR_MGMT_1, 0x00);	//è§£é™¤ä¼‘çœ çŠ¶æ€
 	Single_WriteI2C(SMPLRT_DIV, 0x07);
 	Single_WriteI2C(CONFIG, 0x06);
 	Single_WriteI2C(GYRO_CONFIG, 0x18);
 	Single_WriteI2C(ACCEL_CONFIG, 0x01);
 }
 //**************************************
-//ºÏ³ÉÊı¾İ
+//åˆæˆæ•°æ®
 //**************************************
 int GetData(uchar REG_Address)
 {
 	char H,L;
 	H=Single_ReadI2C(REG_Address);
 	L=Single_ReadI2C(REG_Address+1);
-	return (H<<8)+L;   //ºÏ³ÉÊı¾İ
+	return (H<<8)+L;   //åˆæˆæ•°æ®
 }
 //**************************************
-//ÔÚ1602ÉÏÏÔÊ¾10Î»Êı¾İ
+//åœ¨1602ä¸Šæ˜¾ç¤º10ä½æ•°æ®
 //**************************************
 void Display10BitData(int value,uchar x,uchar y)
 {
-	value/=64;							//×ª»»Îª10Î»Êı¾İ
-	lcd_printf(dis, value);			//×ª»»Êı¾İÏÔÊ¾
-	DisplayListChar(x,y,dis,4);	//ÆôÊ¼ÁĞ£¬ĞĞ£¬ÏÔÊ¾Êı×é£¬ÏÔÊ¾³¤¶È
+	value/=64;							//è½¬æ¢ä¸º10ä½æ•°æ®
+	lcd_printf(dis, value);			//è½¬æ¢æ•°æ®æ˜¾ç¤º
+	DisplayListChar(x,y,dis,4);	//å¯å§‹åˆ—ï¼Œè¡Œï¼Œæ˜¾ç¤ºæ•°ç»„ï¼Œæ˜¾ç¤ºé•¿åº¦
 }
 //**************************************
-//ÏÔÊ¾ÎÂ¶È
+//æ˜¾ç¤ºæ¸©åº¦
 //**************************************
 //void display_temp()
 //{ 
-//	Temp_h=Single_ReadI2C(TEMP_OUT_H); //¶ÁÈ¡ÎÂ¶È
-//	Temp_l=Single_ReadI2C(TEMP_OUT_L); //¶ÁÈ¡ÎÂ¶È
-//	Temperature=Temp_h<<8|Temp_l;     //ºÏ³ÉÎÂ¶È
-//	Temperature = 35+ ((double) (Temperature + 13200)) / 280; // ¼ÆËã³öÎÂ¶È
-//	lcd_printf(dis,Temperature);     //×ª»»Êı¾İÏÔÊ¾
-//	DisplayListChar(11,1,dis,4);     //ÆôÊ¼ÁĞ£¬ĞĞ£¬ÏÔÊ¾Êı×é£¬ÏÔÊ¾Î»Êı
+//	Temp_h=Single_ReadI2C(TEMP_OUT_H); //è¯»å–æ¸©åº¦
+//	Temp_l=Single_ReadI2C(TEMP_OUT_L); //è¯»å–æ¸©åº¦
+//	Temperature=Temp_h<<8|Temp_l;     //åˆæˆæ¸©åº¦
+//	Temperature = 35+ ((double) (Temperature + 13200)) / 280; // è®¡ç®—å‡ºæ¸©åº¦
+//	lcd_printf(dis,Temperature);     //è½¬æ¢æ•°æ®æ˜¾ç¤º
+//	DisplayListChar(11,1,dis,4);     //å¯å§‹åˆ—ï¼Œè¡Œï¼Œæ˜¾ç¤ºæ•°ç»„ï¼Œæ˜¾ç¤ºä½æ•°
 //}
 //*********************************************************
-//Ö÷³ÌĞò
+//ä¸»ç¨‹åº
 //*********************************************************
 void main()
 { 
-	delay(500);		//ÉÏµçÑÓÊ±		
-	InitLcd();		//Òº¾§³õÊ¼»¯
-	InitMPU6050();	//³õÊ¼»¯MPU6050
+	delay(500);		//ä¸Šç”µå»¶æ—¶		
+	InitLcd();		//æ¶²æ™¶åˆå§‹åŒ–
+	InitMPU6050();	//åˆå§‹åŒ–MPU6050
 	delay(150);
 	while(1)
 	{
-		Display10BitData(GetData(ACCEL_XOUT_H),2,0);	//ÏÔÊ¾XÖá¼ÓËÙ¶È
-		Display10BitData(GetData(ACCEL_YOUT_H),7,0);	//ÏÔÊ¾YÖá¼ÓËÙ¶È
-		Display10BitData(GetData(ACCEL_ZOUT_H),12,0);	//ÏÔÊ¾ZÖá¼ÓËÙ¶È
-		Display10BitData(GetData(GYRO_XOUT_H),2,1);	//ÏÔÊ¾XÖá½ÇËÙ¶È
-		Display10BitData(GetData(GYRO_YOUT_H),7,1);	//ÏÔÊ¾YÖá½ÇËÙ¶È
-		Display10BitData(GetData(GYRO_ZOUT_H),12,1);	//ÏÔÊ¾ZÖá½ÇËÙ¶È
+		Display10BitData(GetData(ACCEL_XOUT_H),2,0);	//æ˜¾ç¤ºXè½´åŠ é€Ÿåº¦
+		Display10BitData(GetData(ACCEL_YOUT_H),7,0);	//æ˜¾ç¤ºYè½´åŠ é€Ÿåº¦
+		Display10BitData(GetData(ACCEL_ZOUT_H),12,0);	//æ˜¾ç¤ºZè½´åŠ é€Ÿåº¦
+		Display10BitData(GetData(GYRO_XOUT_H),2,1);	//æ˜¾ç¤ºXè½´è§’é€Ÿåº¦
+		Display10BitData(GetData(GYRO_YOUT_H),7,1);	//æ˜¾ç¤ºYè½´è§’é€Ÿåº¦
+		Display10BitData(GetData(GYRO_ZOUT_H),12,1);	//æ˜¾ç¤ºZè½´è§’é€Ÿåº¦
 		delay(500);
 	}
 }
