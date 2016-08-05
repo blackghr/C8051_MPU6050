@@ -1,1 +1,5 @@
 # C8051_MPU6050
+MPU6050de的cs的测试chengxu的测试程序
+youyu由于shurufa由于输入法youwenti由于输入法有问题
+kenegn可能nis可能你是kanbutaidong可能你是看不太懂
+
